@@ -16,19 +16,20 @@ For the purposes of prototyping and given the limited about of time available I 
 * A static list of users will be implemented due to time contraints.
 
 ## Share Feedback Detail
-* Questions will be presented on a single screen instead of multiple screens due to time constraints.
-* I'll only implement one question type to start due to time contraints. I suggest that we use a open ended text area for recieving feedback for now.
+* Questions will be presented one at a time for users to answer.
+* I'll implement 3 question types: Scale (range selector [1-10]), Multiple Choice (radio button [user can choose 1 answer]), and Text.
 * No progress bar will be presented to indicate the number of questions answered or it will be displayed as disabled or an example.
 * No rating or flagging of questions will be implemented due to time contraints.
 * Skipping a question won't be implemented. All questions must be answered or all allowed to be skipped.
 
 ## My Feedback
-* Depending on available time, I may not get to too much of this.
-* As a first pass, I may set this up to send out an email when another user completes the shared feedback detail.
-* No feedback period filtering
-* No Published/Unpublished status level distinction
-* No new status distinction
-* No hover detail on answers
+* I will not implement any of the My Feedback features in order to leave time for the Shared Feedback features.
+* ~~Depending on available time, I may not get to too much of this.~~
+* ~~As a first pass, I may set this up to send out an email when another user completes the shared feedback detail.~~
+* ~~No feedback period filtering~~
+* ~~No Published/Unpublished status level distinction~~
+* ~~No new status distinction~~
+* ~~No hover detail on answers~~
 
 ## Other Design Aspects
 * The header will be simplified to the Honesto app name and navigation for Share Feedback and My Feedback.
