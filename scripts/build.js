@@ -97,6 +97,18 @@ function buildLayout({ slug, title, body }) {
       .share-feedback-item:hover .share-feedback-item-name {
         color: black;
       }
+      input[type="radio"] + label {
+        background-color: #f2f3f4;
+        padding: 20px 30px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        cursor: pointer;
+        font-weight: 100;
+      }
+      input[type="radio"]:checked + label {
+        background-color: #59636d;
+        color: #cbced2;
+      }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/contentful-management@5.3.2/dist/contentful-management.browser.min.js"></script>
   </head>
@@ -186,12 +198,12 @@ function buildShareFeedbackListItem({ sys, fields }) {
   <img src="${fields.image.fields.file.url}" width="58px" height="58px" alt="${fields.image.fields.title}" style="border-radius:100%;flex-basis:58px;" />
   <span style="flex-basis:24px;"></span>
   <span class="share-feedback-item-name" style="flex-grow:1;height:58px;line-height:58px;font-size:22px;">${fields.name}</span>
-  <span style="flex-basis:100px;height:58px;line-height:58px;">
+  <span style="flex-basis:150px;height:58px;line-height:58px;">
     <a
-      style="width:150px;height:50px;border:1px solid #e4e5e7;box-sizing:border-box;border-radius:4px;display:inline-flex;text-decoration:none;background-color:#aa62e0;"
+      style="width:150px;height:58px;border:1px solid #e4e5e7;box-sizing:border-box;border-radius:4px;display:inline-flex;text-decoration:none;background-color:#aa62e0;color:white;"
       href="/detail.html?userId=${sys.id}"
     >
-      <span style="text-align:center;width:100%;position:relative;top:-4px;color:white;">Fill Out</span>
+      <span style="width:150px;text-align:center;">Fill Out</span>
     </a>
   </span>
   <span style="flex-basis:24px;"></span>
@@ -224,13 +236,13 @@ async function buildShareFeedbackList({ client }) {
 }
 
 function buildShareFeedbackDetailQuestionTitle({ title }) {
-  return `<div style="display:flex;">
+  return `<div style="display:flex;align-items:center;margin-bottom:35px;">
   <span style="flex-grow:1;">
-    <h2>${title}</h2>
-    <span style="text-transform:uppercase;">Share your feedback for <span class="userName"></span></span>
+    <h2 style="font-size:30px;font-weight:500;margin:0;padding-bottom:20px;">${title}</h2>
+    <span style="font-size:12px;font-weight:600;letter-spacing:2px;color:#c1c4c8;text-transform:uppercase;">Share your feedback for <span class="userName"></span></span>
   </span>
-  <span style="flex-basis:50px">
-    <img class="userImage" width="50px" height="50px" style="border-radius:100%;" />
+  <span style="flex-basis:58px">
+    <img class="userImage" width="58px" height="58px" style="border-radius:100%;" />
   </span>
 </div>`;
 }
@@ -238,26 +250,30 @@ function buildShareFeedbackDetailQuestionTitle({ title }) {
 function buildShareFeedbackDetailQuestionNavigation({ first, last }) {
   let previousStyle, previousOnClick, nextStyle, nextOnClick;
   if (first) {
-    previousStyle = `style="flex-shrink:1;padding:10px;border:1px solid black;border-radius:5px;cursor:not-allowed;opacity:0.5;"`;
+    previousStyle = `style="width:150px;height:58px;border:1px solid #e4e5e7;box-sizing:border-box;border-radius:4px;display:inline-flex;color:black;cursor:not-allowed;opacity:0.5;"`
     previousOnClick = "";
   } else {
-    previousStyle = `style="flex-shrink:1;padding:10px;border:1px solid black;border-radius:5px;cursor:pointer;"`;
+    previousStyle = `style="width:150px;height:58px;border:1px solid #e4e5e7;box-sizing:border-box;border-radius:4px;display:inline-flex;color:black;cursor:pointer;"`
     previousOnClick = `onclick="previousQuestion(event)"`;
   }
   if (last) {
-    nextStyle = `style="flex-shrink:1;padding:10px;border:1px solid black;border-radius:5px;cursor:not-allowed;opacity:0.5;"`;
+    nextStyle = `style="width:150px;height:58px;border:1px solid #e4e5e7;box-sizing:border-box;border-radius:4px;display:inline-flex;color:white;background-color:#aa62e0;cursor:not-allowed;opacity:0.5;"`
     nextOnClick = "";
   } else {
-    nextStyle = `style="flex-shrink:1;padding:10px;border:1px solid black;border-radius:5px;cursor:pointer;"`;
+    nextStyle = `style="width:150px;height:58px;border:1px solid #e4e5e7;box-sizing:border-box;border-radius:4px;display:inline-flex;color:white;background-color:#aa62e0;cursor:pointer;"`
     nextOnClick = `onclick="nextQuestion(event)"`;
   }
-  return `<div style="display:flex;margin-top:10px;margin-bottom:10px;">
-  <span ${previousStyle} ${previousOnClick}>
-    Previous
+  return `<div style="display:flex;margin-top:20px;margin-bottom:20px;">
+  <span style="flex-basis:150px;height:58px;line-height:58px;">
+    <span ${previousStyle} ${previousOnClick}>
+      <span style="text-align:center;width:150px;">Previous</span>
+    </span>
   </span>
   <span style="flex-grow:1;"></span>
-  <span ${nextStyle} ${nextOnClick}>
-    Next
+  <span style="flex-basis:150px;height:58px;line-height:58px;">
+    <span ${nextStyle} ${nextOnClick}>
+      <span style="text-align:center;width:150px;">Next</span>
+    </span>
   </span>
 </div>`;
 }
@@ -265,31 +281,41 @@ function buildShareFeedbackDetailQuestionNavigation({ first, last }) {
 function buildShareFeedbackDetailQuestionTextarea({ title }, index ) {
   return `<li>
   ${buildShareFeedbackDetailQuestionTitle({ title })}
-  <textarea name="${title}" rows="5" style="width:100%"></textarea>
-  ${buildShareFeedbackDetailQuestionNavigation({ first: index === 0 })}
+  <div style="border:1px solid #e0e0e0;box-shadow:0 0 4px rgba(0,0,0,0.25);padding:20px;">
+    <textarea name="${title}" rows="10" style="width:100%;font-size:16px;border:1px solid #d9dcde;box-sizing:border-box;border-radius:4px;padding:15px;" placeholder="Say something"></textarea>
+    ${buildShareFeedbackDetailQuestionNavigation({ first: index === 0 })}
+  </div>
 </li>`;
 }
 
 function buildShareFeedbackDetailQuestionRange({ title }, index ) {
   return `<li>
   ${buildShareFeedbackDetailQuestionTitle({ title })}
-  <input name="${title}" type="range" min="1" max="10" style="width:100%;height:5em;" />
-  ${buildShareFeedbackDetailQuestionNavigation({ first: index === 0 })}
+  <div style="border:1px solid #e0e0e0;box-shadow:0 0 4px rgba(0,0,0,0.25);padding:20px;">
+    <div style="font-weight:100;margin-bottom:40px;">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </div>
+    <input name="${title}" type="range" min="1" max="10" style="width:100%;height:5em;" />
+    ${buildShareFeedbackDetailQuestionNavigation({ first: index === 0 })}
+  </div>
 </li>`;
 }
 
 function buildShareFeedbackDetailQuestionRadioOption({ title, answer }) {
-  return `<label style="display:block;padding:5px;">
-  <input name="${title}" type="radio" value="${answer}" />
-  ${answer}
-</label>`;
+  return `<input id="${answer}" style="visibility:hidden;width:0;height:5px;" name="${title}" type="radio" value="${answer}" />
+<label for="${answer}" style="display:block;">${answer}</label>`;
 }
 
 function buildShareFeedbackDetailQuestionRadio({ title, answers }, index ) {
   return `<li>
   ${buildShareFeedbackDetailQuestionTitle({ title })}
-  ${answers.options.map(({ answer }) => buildShareFeedbackDetailQuestionRadioOption({ title, answer })).join("")}
-  ${buildShareFeedbackDetailQuestionNavigation({ first: index === 0 })}
+  <div style="border:1px solid #e0e0e0;box-shadow:0 0 4px rgba(0,0,0,0.25);padding:20px;">
+    ${answers.options.map(({ answer }) => buildShareFeedbackDetailQuestionRadioOption({ title, answer })).join("")}
+    ${buildShareFeedbackDetailQuestionNavigation({ first: index === 0 })}
+  </div>
 </li>`;
 }
 
@@ -306,10 +332,11 @@ function buildShareFeedbackDetailQuestion({ fields, index }) {
 
 async function buildShareFeedbackDetail({ config, client }) {
   const questions = await client.getEntries({ content_type: "question" });
-  const body = `
+  const body = `<div style="padding-top:40px;">
+  <div style="margin-bottom:30px;"><a href="/" style="font-size:12px;font-weight:600;color:#59636d;letter-spacing:2px;text-decoration:none;">&lt; BACK</a></div>
   <div id="loader">Loading...</div>
   <form id="form" onsubmit="saveFeedback(event)" style="display:none;">
-    <ol id="questions" style="list-style-type:none;">
+    <ol id="questions" style="list-style-type:none;padding-inline-start:0;">
       ${questions.items.map((item, index) => buildShareFeedbackDetailQuestion({ fields: item.fields, index })).join("")}
       <li>
         ${buildShareFeedbackDetailQuestionNavigation({ last: true })}
@@ -398,11 +425,10 @@ async function buildShareFeedbackDetail({ config, client }) {
       window.location = "/";
     }
   </script>
-`;
+</div>`;
   buildLayout({
     slug: "detail",
     title: "Share Feedback",
-    header: `<a href="/" style="text-decoration:none;">&lt; BACK</a>`,
     body: body,
   });
 }
