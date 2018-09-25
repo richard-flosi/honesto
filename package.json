@@ -1,0 +1,24 @@
+{
+  "name": "Honesto",
+  "description": "Honesto static website with Contentful and Netlify",
+  "version": "1.0.0",
+  "repository": "https://github.com/richard-flosi/honesto",
+  "author": "Richard Flosi <richard.flosi@gmail.com>",
+  "dependencies": {
+    "contentful": "7.0.3",
+    "fs-extra": "7.0.0",
+    "marked": "0.5.0"
+  },
+  "devDependencies": {
+    "serve": "10.0.1"
+  },
+  "keywords": [
+    "honesto",
+    "contentful",
+    "netlify"
+  ],
+  "scripts": {
+    "build": "node ./scripts/build.js",
+    "start": "serve --no-clipboard --config serve.json"
+  }
+}

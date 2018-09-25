@@ -1,0 +1,333 @@
+const fs = require("fs-extra");
+const path = require("path");
+
+function configure() {
+  // default configuration
+  let config = { spaceId: null, contentDeliveryAccessToken: null, contentPreviewAccessToken: null };
+  
+  // get configuration file
+  const configurationFile = "../config/contentful.json";
+  try {
+    config = require(configurationFile);
+  } catch (e) {
+    console.log(`No configration file found at ${configurationFile}`);
+  }
+
+  // get environment variables
+  if (process.env.CONTENTFUL_SPACE_ID) {
+    config.spaceId = process.env.CONTENTFUL_SPACE_ID;
+  }
+  if (process.env.CONTENTFUL_CONTENT_DELIVERY_ACCESS_TOKEN) {
+    config.contentDeliveryAccessToken = process.env.CONTENTFUL_CONTENT_DELIVERY_ACCESS_TOKEN;
+  }
+  if (process.env.CONTENTFUL_CONTENT_PREVIEW_ACCESS_TOKEN) {
+    config.contentPreviewAccessToken = process.env.CONTENTFUL_CONTENT_PREVIEW_ACCESS_TOKEN;
+  }
+
+  // validate configuration
+  if (
+    config.spaceId === null || 
+    config.contentDeliveryAccessToken === null || 
+    config.contentPreviewAccessToken === null
+  ) {
+    throw new Error(
+      `Could not find Contentful configuration values for 
+      spaceId, contentDeliveryAccessToken, or contentPreviewAccessToken: 
+      ${config}`
+    );
+  }
+
+  return config;
+}
+
+function publicDirectory() {
+  return path.join(path.resolve(path.dirname(".")), "public");
+}
+
+function clear() {
+  fs.emptyDirSync(publicDirectory())
+}
+
+function write(filename, content) {
+  fs.writeSync(fs.openSync(path.join(publicDirectory(), filename), "w"), content);
+}
+
+function mkdir(directory) {
+  fs.ensureDirSync(path.join(publicDirectory(), directory));
+}
+
+function buildLayout({ slug, title, header, body }) {
+  const content = `<html>
+  <head>
+    <title>${title}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+      a {
+        font-weight: 100;
+      }
+      a:link, a:visited {
+        color: black;
+      }
+      a:hover {
+        color: black;
+      }
+      a:active {
+        color: black;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/contentful-management@5.3.2/dist/contentful-management.browser.min.js"></script>
+  </head>
+  <body style="margin:0;padding:0;background-color:silver;font-family:helvetica,arial,sans-serif;">
+    <div style="margin-left:40px;margin-right:40px;">
+      <a href="/" style="text-decoration:none;margin:0;padding:10px;line-height:1.75em;color:black;text-align:left;">
+        <h1 style="display:inline-block;">Honesto</h1>
+      </a>
+      <nav style="display:inline-block;margin-left:10px;">
+        <span style="padding:10px;line-height:1.75em;text-align:left;">
+          <a href="/" style="text-decoration:none;color:black;font-weight:bold;">Share Feedback</a>
+        </span>
+      </nav>
+    </div>
+    <header>
+      <h2 style="margin:0;padding:20px;line-height:1.25em;background-color:white;color:black;">
+        <div style="max-width:600px;margin-left:auto;margin-right:auto;">
+          ${header}
+        </div>
+      </h2>
+    </header>
+    <main>
+      <div style="padding:20px;line-height:1.25em;background-color:white;color:black;">
+        <div style="min-height:80%;max-width:600px;margin-left:auto;margin-right:auto;">
+          ${body}
+        </div>
+      </div>
+    </main>
+    <footer>
+      <div style="padding:20px;line-height:1.75em;background-color:black;color:white;text-align:right;">
+        Copyright &copy; 2018 Honesto
+      </div>
+    </footer>
+  </body>
+</html>`;
+  write(`${slug}.html`, content);
+}
+
+function buildShareFeedbackListItem({ sys, fields }) {
+  return `<div style="display:flex;margin:10px;">
+  <img src="${fields.image.fields.file.url}" width="50px" height="50px" alt="${fields.image.fields.title}" style="border-radius:100%;flex-basis:50px;margin-right:10px;" />
+  <span style="flex-grow:1;height:50px;line-height:50px;">${fields.name}</span>
+  <span style="flex-basis:100px;height:50px;line-height:50px;"><a href="/detail.html?userId=${sys.id}">Fill Out</a></span>
+</div>`;
+}
+
+async function buildShareFeedbackList({ client }) {
+  const users = await client.getEntries({ content_type: "user" });
+  const body = `<div>${users.items.map(buildShareFeedbackListItem).join("")}</div>`;
+  buildLayout({
+    slug: "index",
+    title: "Share Feedback",
+    header: "Share Feedback",
+    body: body,
+  });
+}
+
+function buildShareFeedbackDetailQuestionTitle({ title }) {
+  return `<div style="display:flex;">
+  <span style="flex-grow:1;">
+    <h2>${title}</h2>
+    <span style="text-transform:uppercase;">Share your feedback for <span class="userName"></span></span>
+  </span>
+  <span style="flex-basis:50px">
+    <img class="userImage" width="50px" height="50px" style="border-radius:100%;" />
+  </span>
+</div>`;
+}
+
+function buildShareFeedbackDetailQuestionNavigation({ first, last }) {
+  let previousStyle, previousOnClick, nextStyle, nextOnClick;
+  if (first) {
+    previousStyle = `style="flex-shrink:1;padding:10px;border:1px solid black;border-radius:5px;cursor:not-allowed;opacity:0.5;"`;
+    previousOnClick = "";
+  } else {
+    previousStyle = `style="flex-shrink:1;padding:10px;border:1px solid black;border-radius:5px;cursor:pointer;"`;
+    previousOnClick = `onclick="previousQuestion(event)"`;
+  }
+  if (last) {
+    nextStyle = `style="flex-shrink:1;padding:10px;border:1px solid black;border-radius:5px;cursor:not-allowed;opacity:0.5;"`;
+    nextOnClick = "";
+  } else {
+    nextStyle = `style="flex-shrink:1;padding:10px;border:1px solid black;border-radius:5px;cursor:pointer;"`;
+    nextOnClick = `onclick="nextQuestion(event)"`;
+  }
+  return `<div style="display:flex;margin-top:10px;margin-bottom:10px;">
+  <span ${previousStyle} ${previousOnClick}>
+    Previous
+  </span>
+  <span style="flex-grow:1;"></span>
+  <span ${nextStyle} ${nextOnClick}>
+    Next
+  </span>
+</div>`;
+}
+
+function buildShareFeedbackDetailQuestionTextarea({ title }, index ) {
+  return `<li>
+  ${buildShareFeedbackDetailQuestionTitle({ title })}
+  <textarea name="${title}" rows="5" style="width:100%"></textarea>
+  ${buildShareFeedbackDetailQuestionNavigation({ first: index === 0 })}
+</li>`;
+}
+
+function buildShareFeedbackDetailQuestionRange({ title }, index ) {
+  return `<li>
+  ${buildShareFeedbackDetailQuestionTitle({ title })}
+  <input name="${title}" type="range" min="1" max="10" style="width:100%;height:5em;" />
+  ${buildShareFeedbackDetailQuestionNavigation({ first: index === 0 })}
+</li>`;
+}
+
+function buildShareFeedbackDetailQuestionRadioOption({ title, answer }) {
+  return `<label style="display:block;padding:5px;">
+  <input name="${title}" type="radio" value="${answer}" />
+  ${answer}
+</label>`;
+}
+
+function buildShareFeedbackDetailQuestionRadio({ title, answers }, index ) {
+  return `<li>
+  ${buildShareFeedbackDetailQuestionTitle({ title })}
+  ${answers.options.map(({ answer }) => buildShareFeedbackDetailQuestionRadioOption({ title, answer })).join("")}
+  ${buildShareFeedbackDetailQuestionNavigation({ first: index === 0 })}
+</li>`;
+}
+
+function buildShareFeedbackDetailQuestion({ fields, index }) {
+  switch (fields.type) {
+    case "textarea":
+      return buildShareFeedbackDetailQuestionTextarea(fields, index);
+    case "range":
+      return buildShareFeedbackDetailQuestionRange(fields, index);
+    case "radio":
+      return buildShareFeedbackDetailQuestionRadio(fields, index);
+  }
+}
+
+async function buildShareFeedbackDetail({ config, client }) {
+  const questions = await client.getEntries({ content_type: "question" });
+  const body = `
+  <div id="loader">Loading...</div>
+  <form id="form" onsubmit="saveFeedback(event)" style="display:none;">
+    <ol id="questions" style="list-style-type:none;">
+      ${questions.items.map((item, index) => buildShareFeedbackDetailQuestion({ fields: item.fields, index })).join("")}
+      <li>
+        ${buildShareFeedbackDetailQuestionNavigation({ last: true })}
+        <button type="submit" style="line-height:2em;width:100%;padding:10px;background-color:black;color:white;font-weight:bold;font-size:1.25em;">
+          Submit
+        </button>
+      </li>
+    </ol>
+  </form>
+  <script type="text/javascript">
+    function previousQuestion(event) {
+      const parentQuestionElement = event.target.closest("li");
+      const previousQuestionElement = parentQuestionElement.previousElementSibling;
+      parentQuestionElement.style.display = "none";
+      previousQuestionElement.style.display = "block";
+    }
+    function nextQuestion(event) {
+      const parentQuestionElement = event.target.closest("li");
+      const nextQuestionElement = parentQuestionElement.nextElementSibling;
+      parentQuestionElement.style.display = "none";
+      nextQuestionElement.style.display = "block";
+    }
+    </script>
+  <script type="text/javascript">
+   (function showQuestions() {
+    const questionsContainerElement = document.getElementById("questions");
+    const questionCollection = questionsContainerElement.getElementsByTagName("li");
+    Array.prototype.forEach.call(
+      questionCollection,
+      (element, index) => {
+        if (index !== 0) {
+          element.style.display = "none";
+        }
+      }
+    );
+   })()
+  </script>
+  <script type="text/javascript">
+    (async function getUser() {
+      const userId = new URLSearchParams(window.location.search).get("userId");
+      const client = contentfulManagement.createClient({
+        accessToken: "CFPAT-b10c43cb0eca8d4c7f7fa92e8115119f6001abe028826b6fa859a907ebd31bba"
+      });
+      const space = await client.getSpace("${config.spaceId}");
+      const environment = await space.getEnvironment("master");
+      const userEntry = await environment.getEntry(userId);
+      const userName = userEntry.fields.name["en-US"];
+      const userNameCollection = document.getElementsByClassName("userName");
+      Array.prototype.forEach.call(userNameCollection, (element) => { element.innerHTML = userName; });
+      const imageId = userEntry.fields.image["en-US"].sys.id;
+      const imageAsset = await environment.getAsset(imageId);
+      const imageUrl = imageAsset.fields.file["en-US"].url;
+      const userImageCollection = document.getElementsByClassName("userImage");
+      Array.prototype.forEach.call(userImageCollection, (element) => { element.src = imageUrl; element.alt = userName; });
+      const loader = document.getElementById("loader");
+      loader.style.display = "none";
+      const form = document.getElementById("form");
+      form.style.display = "block";
+    })()
+  </script>
+  <script type="text/javascript">
+    async function saveFeedback(event) {
+      event.preventDefault();
+      const userId = new URLSearchParams(window.location.search).get("userId");
+      const formData = new FormData(event.target);
+      let feedback = [];
+      formData.forEach((answer, question) => {
+        feedback.push({ question, answer });
+      });
+      const client = contentfulManagement.createClient({
+        accessToken: "CFPAT-b10c43cb0eca8d4c7f7fa92e8115119f6001abe028826b6fa859a907ebd31bba"
+      });
+      const space = await client.getSpace("${config.spaceId}");
+      const environment = await space.getEnvironment("master");
+      const feedbackEntry = await environment.createEntry(
+        "feedback",
+        {
+          fields: {
+            user: { "en-US": { sys: { type: "Link", linkType: "Entry", id: userId } } },
+            complete: { "en-US": true },
+            feedback: { "en-US": feedback }
+          }
+        }
+      );
+      await feedbackEntry.publish();
+      window.location = "/";
+    }
+  </script>
+`;
+  buildLayout({
+    slug: "detail",
+    title: "Share Feedback",
+    header: `<a href="/" style="text-decoration:none;text-transformation:uppercase;">&lt; Back</a>`,
+    body: body,
+  });
+}
+
+async function main() {
+  const contentful = require("contentful");
+  fs.ensureDirSync(path.join("config"));
+  const config = configure();
+  const client = contentful.createClient({
+    space: config.spaceId,
+    accessToken: config.contentDeliveryAccessToken,
+  });
+  clear(); // clear the public directory
+  await buildShareFeedbackList({ client });
+  await buildShareFeedbackDetail({ config, client });
+  console.log("OK");
+  return true;
+}
+
+main();
