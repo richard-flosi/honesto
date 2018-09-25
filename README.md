@@ -32,6 +32,6 @@ For the purposes of prototyping and given the limited about of time available I 
 # Things I couldn't complete
 * Creating a custom range selector to match the design.
 
-# Given more time, things I'd consider
+# Things I'd consider
 * These app reminds me a lot of surveys like Survey Monkey provides. Given more time I'd explore integrating with something like Survey Monkey accordingly.
 * Functionality will be prioritized over design, but I'll do my best to make it look good, but design will probably be what I work on last.
