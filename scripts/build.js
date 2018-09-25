@@ -74,22 +74,85 @@ function buildLayout({ slug, title, header, body }) {
       a:active {
         color: black;
       }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        height: 75px;
+        box-sizing: border-box;
+        cursor: pointer;
+        padding-top: 3px;
+        border-bottom: 3px solid transparent;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .nav-item:hover {
+        border-bottom: 3px solid #ab61e5;
+      }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/contentful-management@5.3.2/dist/contentful-management.browser.min.js"></script>
   </head>
-  <body style="margin:0;padding:0;background-color:silver;font-family:helvetica,arial,sans-serif;">
-    <div style="margin-left:40px;margin-right:40px;">
-      <a href="/" style="text-decoration:none;margin:0;padding:10px;line-height:1.75em;color:black;text-align:left;">
-        <h1 style="display:inline-block;">Honesto</h1>
-      </a>
-      <nav style="display:inline-block;margin-left:10px;">
-        <span style="padding:10px;line-height:1.75em;text-align:left;">
-          <a href="/" style="text-decoration:none;color:black;font-weight:bold;">Share Feedback</a>
+  <body style="margin:0;padding:0;font-family:helvetica,arial,sans-serif;">
+    <div style="display:flex;height:75px;background-color:#f2f3f4;align-items:center;box-shadow:0 0 4px rgba(0,0,0,0.25);">
+      <span style="flex-basis:130px;"></span>
+      <span style="flex-shrink:1;">
+        <a href="/" style="text-decoration:none;">
+          <h1 style="display:inline-block;font-size:24px;">Honesto</h1>
+        </a>
+      </span>
+      <span style="flex-basis:80px;"></span>
+      <nav style="flex-grow:1;">
+        <span style="display:flex;align-items:center;">
+          <span class="nav-item">
+            <a href="/" style="flex-shrink:1;white-space:nowrap;text-decoration:none;color:black;font-weight:500;">Share Feedback</a>
+          </span>
+          <span style="flex-basis:60px;"></span>
+          <span class="nav-item">
+            <a href="/" style="flex-shrink:1;white-space:nowrap;text-decoration:none;color:black;font-weight:500;">My Feedback</a>
+          </span>
+          <span style="flex-basis:60px;"></span>
+          <span class="nav-item">
+            <a href="/" style="flex-shrink:1;white-space:nowrap;text-decoration:none;color:black;font-weight:500;">Team Feedback</a>
+          </span>
+          <span style="flex-basis:60px;"></span>
+          <span class="nav-item">
+            <a href="/" style="flex-shrink:1;white-space:nowrap;text-decoration:none;color:black;font-weight:500;">Teams</a>
+          </span>
+          <span style="flex-basis:60px;"></span>
+          <span style="flex-grow:1;">
+            <span style="display:flex;flex-direction:column;align-items:flex-end;">
+              <span style="font-size:12px;color:#59636e;font-weight:500;padding-bottom:5px;">
+                Next Feedback Cycle:
+              </span>
+              <span>
+                <span style="font-weight:200;">Oct 2018</span>
+                <span style="color:#d9dcde;">&mdash;</span>
+                <span style="color:#1ddebb;font-weight:500;">5 days</span>
+              </span>
+            </span>
+          </span>
+          <span style="flex-basis:40px;"></span>
         </span>
       </nav>
+      <span style="height:100%;border-left:1px solid #d9dcde;box-sizing:border-box;align-self:flex-end;flex-basis:235px;">
+        <span style="display:flex;align-items:center;">
+          <img
+            style="border-radius:100%;padding:8px 24px;"
+            src="https://images.ctfassets.net/hcthlz4vm6pt/6rIYjDhXSoUisEicqAYUG2/50f9919558791de9a75fddaed45c5f4d/sarah-kozlowski.jpg?h=58"
+            alt="Jane Smith"
+            width="58px"
+            height="58px"
+          />
+          <span style="flex-basis:16px;"></span>
+          <span style="display:flex;flex-direction:column;">
+            <span style="font-weight:300;padding-bottom:5px;">Jane Smith</span>
+            <span style="font-size:12px;font-weight:600;color:#59636d;letter-spacing:2px;">LOGOUT</span>
+          </span>
+          <span style="flex-basis:24px;"></span>
+        </span>
+      </span>
     </div>
     <header>
-      <h2 style="margin:0;padding:20px;line-height:1.25em;background-color:white;color:black;">
+      <h2 style="margin:0;padding:20px;line-height:1.25em;color:black;">
         <div style="max-width:600px;margin-left:auto;margin-right:auto;">
           ${header}
         </div>
