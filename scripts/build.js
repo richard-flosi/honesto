@@ -56,7 +56,7 @@ function mkdir(directory) {
   fs.ensureDirSync(path.join(publicDirectory(), directory));
 }
 
-function buildLayout({ slug, title, header, body }) {
+function buildLayout({ slug, title, body }) {
   const content = `<html>
   <head>
     <title>${title}</title>
@@ -87,6 +87,15 @@ function buildLayout({ slug, title, header, body }) {
       }
       .nav-item:hover {
         border-bottom: 3px solid #ab61e5;
+      }
+      .share-feedback-item:hover {
+        background-color: #fbf7fe;
+      }
+      .share-feedback-item-name {
+        color: #59636e;
+      }
+      .share-feedback-item:hover .share-feedback-item-name {
+        color: black;
       }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/contentful-management@5.3.2/dist/contentful-management.browser.min.js"></script>
@@ -151,23 +160,19 @@ function buildLayout({ slug, title, header, body }) {
         </span>
       </span>
     </div>
-    <header>
-      <h2 style="margin:0;padding:20px;line-height:1.25em;color:black;">
-        <div style="max-width:600px;margin-left:auto;margin-right:auto;">
-          ${header}
-        </div>
-      </h2>
-    </header>
     <main>
-      <div style="padding:20px;line-height:1.25em;background-color:white;color:black;">
-        <div style="min-height:80%;max-width:600px;margin-left:auto;margin-right:auto;">
+      <div style="background-color:white;color:black;">
+        <div style="min-height:80%;max-width:788px;margin-left:auto;margin-right:auto;margin-bottom:40px;">
           ${body}
         </div>
       </div>
     </main>
     <footer>
-      <div style="padding:20px;line-height:1.75em;background-color:black;color:white;text-align:right;">
-        Copyright &copy; 2018 Honesto
+      <div style="display:flex;align-items:center;height:55px;background-color:black;color:white;">
+        <span style="flex-basis:120px;"></span>
+        <span style="flex-grow:1;font-family:Georgia,serif;font-size:20px;">Theorem &#9633;</span>
+        <span style="font-size:12px;color:#dfe1e3;font-weight:100;">Copyright &copy; 2018 <b style="font-family:Georgia,serif;">Theorem</b>, LLC. All rights reserved.</span>
+        <span style="flex-basis:20px;"></span>
       </div>
     </footer>
   </body>
@@ -176,20 +181,44 @@ function buildLayout({ slug, title, header, body }) {
 }
 
 function buildShareFeedbackListItem({ sys, fields }) {
-  return `<div style="display:flex;margin:10px;">
-  <img src="${fields.image.fields.file.url}" width="50px" height="50px" alt="${fields.image.fields.title}" style="border-radius:100%;flex-basis:50px;margin-right:10px;" />
-  <span style="flex-grow:1;height:50px;line-height:50px;">${fields.name}</span>
-  <span style="flex-basis:100px;height:50px;line-height:50px;"><a href="/detail.html?userId=${sys.id}">Fill Out</a></span>
+  return `<div class="share-feedback-item" style="display:flex;align-items:center;border-bottom:1px solid #e4e5e7;height:96px;">
+  <span style="flex-basis:24px;"></span>
+  <img src="${fields.image.fields.file.url}" width="58px" height="58px" alt="${fields.image.fields.title}" style="border-radius:100%;flex-basis:58px;" />
+  <span style="flex-basis:24px;"></span>
+  <span class="share-feedback-item-name" style="flex-grow:1;height:58px;line-height:58px;font-size:22px;">${fields.name}</span>
+  <span style="flex-basis:100px;height:58px;line-height:58px;">
+    <a
+      style="width:150px;height:50px;border:1px solid #e4e5e7;box-sizing:border-box;border-radius:4px;display:inline-flex;text-decoration:none;background-color:#aa62e0;"
+      href="/detail.html?userId=${sys.id}"
+    >
+      <span style="text-align:center;width:100%;position:relative;top:-4px;color:white;">Fill Out</span>
+    </a>
+  </span>
+  <span style="flex-basis:24px;"></span>
 </div>`;
 }
 
 async function buildShareFeedbackList({ client }) {
   const users = await client.getEntries({ content_type: "user" });
-  const body = `<div>${users.items.map(buildShareFeedbackListItem).join("")}</div>`;
+  const body = `<div style="padding-top:30px;">
+  <span style="display:flex;align-items:center;justify-content:space-between;">
+    <h2 style="font-size:30px;font-weight:500;">Share Feedback</h2>
+    <span style="display:flex;flex-direction:column;">
+      <span style="font-size:12px;font-weight:600;color:#59636d;letter-spacing:2px;padding-bottom:5px;">FEEDBACK PERIOD</span>
+      <span>
+        <select style="width:345px;height:48px;background-color:white;border:1px solid #d9dcde;border-radius:4px;font-size:16px;text-indent:10px;">
+          <option selected>September 2018</option>
+        </select>
+      </span>
+    </span>
+  </span>
+  <div style="border:1px solid #e4e5e7;border-radius:2px;margin-top:10px;box-shadow:0 0 4px rgba(0,0,0,0.25);">
+    ${users.items.map(buildShareFeedbackListItem).join("")}
+  </div>
+</div>`;
   buildLayout({
     slug: "index",
     title: "Share Feedback",
-    header: "Share Feedback",
     body: body,
   });
 }
@@ -373,7 +402,7 @@ async function buildShareFeedbackDetail({ config, client }) {
   buildLayout({
     slug: "detail",
     title: "Share Feedback",
-    header: `<a href="/" style="text-decoration:none;text-transformation:uppercase;">&lt; Back</a>`,
+    header: `<a href="/" style="text-decoration:none;">&lt; BACK</a>`,
     body: body,
   });
 }
