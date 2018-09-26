@@ -114,7 +114,7 @@ function buildLayout({ slug, title, body }) {
   </head>
   <body style="margin:0;padding:0;font-family:helvetica,arial,sans-serif;">
     <div style="display:flex;height:75px;background-color:#f2f3f4;align-items:center;box-shadow:0 0 4px rgba(0,0,0,0.25);">
-      <span style="flex-basis:130px;"></span>
+      <span style="flex-grow:1;"></span>
       <span style="flex-shrink:1;">
         <a href="/" style="text-decoration:none;">
           <h1 style="display:inline-block;font-size:24px;">Honesto</h1>
@@ -126,21 +126,21 @@ function buildLayout({ slug, title, body }) {
           <span class="nav-item">
             <a href="/" style="flex-shrink:1;white-space:nowrap;text-decoration:none;color:black;font-weight:500;">Share Feedback</a>
           </span>
-          <span style="flex-basis:60px;"></span>
+          <span style="flex-basis:50px;"></span>
           <span class="nav-item">
             <a href="/" style="flex-shrink:1;white-space:nowrap;text-decoration:none;color:black;font-weight:500;">My Feedback</a>
           </span>
-          <span style="flex-basis:60px;"></span>
+          <span style="flex-basis:50px;"></span>
           <span class="nav-item">
             <a href="/" style="flex-shrink:1;white-space:nowrap;text-decoration:none;color:black;font-weight:500;">Team Feedback</a>
           </span>
-          <span style="flex-basis:60px;"></span>
+          <span style="flex-basis:50px;"></span>
           <span class="nav-item">
             <a href="/" style="flex-shrink:1;white-space:nowrap;text-decoration:none;color:black;font-weight:500;">Teams</a>
           </span>
-          <span style="flex-basis:60px;"></span>
-          <span style="flex-grow:1;">
-            <span style="display:flex;flex-direction:column;align-items:flex-end;">
+          <span style="flex-basis:50px;"></span>
+          <span style="flex-shrink:1;">
+            <span style="display:flex;flex-direction:column;align-items:flex-end;width:150px;">
               <span style="font-size:12px;color:#59636e;font-weight:500;padding-bottom:5px;">
                 Next Feedback Cycle:
               </span>
@@ -259,9 +259,11 @@ function buildShareFeedbackDetailQuestionNavigation({ first, last }) {
   if (last) {
     nextStyle = `style="width:150px;height:58px;border:1px solid #e4e5e7;box-sizing:border-box;border-radius:4px;display:inline-flex;color:white;background-color:#aa62e0;cursor:not-allowed;opacity:0.5;"`
     nextOnClick = "";
+    submitButton = `<button type="submit" style="height:58px;width:150px;border-radius:4px;padding:10px;background-color:#1ddebb;color:white;font-size:16px;cursor:pointer;">Submit</button>`;
   } else {
     nextStyle = `style="width:150px;height:58px;border:1px solid #e4e5e7;box-sizing:border-box;border-radius:4px;display:inline-flex;color:white;background-color:#aa62e0;cursor:pointer;"`
     nextOnClick = `onclick="nextQuestion(event)"`;
+    submitButton = "";
   }
   return `<div style="display:flex;margin-top:20px;margin-bottom:20px;">
   <span style="flex-basis:150px;height:58px;line-height:58px;">
@@ -269,6 +271,8 @@ function buildShareFeedbackDetailQuestionNavigation({ first, last }) {
       <span style="text-align:center;width:150px;">Previous</span>
     </span>
   </span>
+  <span style="flex-grow:1;"></span>
+  <span style="flex-shrink:1;">${submitButton}</span>
   <span style="flex-grow:1;"></span>
   <span style="flex-basis:150px;height:58px;line-height:58px;">
     <span ${nextStyle} ${nextOnClick}>
@@ -339,14 +343,31 @@ async function buildShareFeedbackDetail({ config, client }) {
     <ol id="questions" style="list-style-type:none;padding-inline-start:0;">
       ${questions.items.map((item, index) => buildShareFeedbackDetailQuestion({ fields: item.fields, index })).join("")}
       <li>
+        <div id="review" style="margin-bottom:20px;"></div>
         ${buildShareFeedbackDetailQuestionNavigation({ last: true })}
-        <button type="submit" style="line-height:2em;width:100%;padding:10px;background-color:black;color:white;font-weight:bold;font-size:1.25em;">
-          Submit
-        </button>
       </li>
     </ol>
   </form>
   <script type="text/javascript">
+    function reviewData() {
+      const formElement = document.getElementById("form");
+      const formData = new FormData(formElement);
+      let feedback = [];
+      formData.forEach((answer, question) => {
+        feedback.push(
+          '<div>' +
+            '<h2 style="font-size:20px;font-weight:500;">' + question + '</h2>' +
+            '<div style="font-weight:100;margin-bottom:30px;">' + answer + '</span>' +
+          '</div>'
+        );
+      });
+      console.log("reviewData", feedback);
+      const reviewElement = document.getElementById("review");
+      console.log("reviewData", reviewElement, reviewElement.innerHTML);
+      reviewElement.innerHTML = feedback.join("");
+      console.log("reviewData", reviewElement.innerHTML);
+      console.log("/reviewData");
+    }
     function previousQuestion(event) {
       const parentQuestionElement = event.target.closest("li");
       const previousQuestionElement = parentQuestionElement.previousElementSibling;
@@ -356,6 +377,7 @@ async function buildShareFeedbackDetail({ config, client }) {
     function nextQuestion(event) {
       const parentQuestionElement = event.target.closest("li");
       const nextQuestionElement = parentQuestionElement.nextElementSibling;
+      reviewData();
       parentQuestionElement.style.display = "none";
       nextQuestionElement.style.display = "block";
     }
