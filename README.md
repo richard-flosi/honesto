@@ -31,7 +31,11 @@ For the purposes of prototyping and given the limited about of time available I 
 
 # Things I couldn't complete
 * Creating a custom range selector to match the design.
+* Implementing the View Submission button to display 
 
 # Things I'd consider
 * These app reminds me a lot of surveys like Survey Monkey provides. Given more time I'd explore integrating with something like Survey Monkey accordingly.
-* Functionality will be prioritized over design, but I'll do my best to make it look good, but design will probably be what I work on last.
+* I would have spent more time modeling the data.
+* I'd organize the code into more files.
+* I'd use [Netlify Functions](https://www.netlify.com/docs/functions/) in order to keep my access token out of the client-side javascript.
+* I'd look into using [Netlify Identity](https://www.netlify.com/docs/identity/) for user authentication.
